@@ -9,10 +9,11 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { async } from "@firebase/util";
 import {
   createUserWithEmailAndPassword,
+  deleteUser,
   signInWithEmailAndPassword,
+  User,
 } from "firebase/auth";
 
 import { useEffect, useState } from "react";
@@ -55,6 +56,15 @@ export type CallBacksType = {
 export type StatesType = {
   todoList: Array<TodoType>;
 };
+
+// 로그인 및 회원가입 타입 정의
+export type CallBacksFireBaseType = {
+  fbLogin: (email: string, password: string) => void;
+  fbJoin: (email: string, password: string) => void;
+  fbLogout: () => void;
+  fbDeleteUser: () => void;
+};
+
 const AppContainer = () => {
   // 상태데이터
   let initData: Array<TodoType> = [];
@@ -239,6 +249,8 @@ const AppContainer = () => {
   // 데이터목록의 타입
   const states: StatesType = { todoList };
 
+  // 현재 사용자가 로그인 된 상태인지 아닌지 구별
+  const [userLogin, setUserLogin] = useState(false);
   // 사용자 로그인 기능
   const fbLogin = (email: string, password: string) => {
     signInWithEmailAndPassword(auth, email, password)
@@ -246,6 +258,8 @@ const AppContainer = () => {
         // Signed in
         const user = userCredential.user;
         console.log(user);
+
+        setUserLogin(true);
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -261,6 +275,8 @@ const AppContainer = () => {
         // Signed in
         const user = userCredential.user;
         console.log(user);
+        // 생각을 더 해보자...
+        setUserLogin(true);
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -269,12 +285,45 @@ const AppContainer = () => {
         console.log("errorMessage : ", errorMessage);
       });
   };
+  // 사용자 로그아웃
+  const fbLogout = () => {
+    auth.signOut();
+    setUserLogin(false);
+  };
+  // 회원탈퇴
+  const fbDeleteUser = async () => {
+    await deleteUser(auth.currentUser as User)
+      .then(() => {
+        // User deleted.
+        setUserLogin(false);
+      })
+      .catch((error) => {
+        // An error ocurred
+        // ...
+        console.log("회원 탈퇴 실패");
+      });
+  };
+
+  // 로그인 관리 기능 타입
+  const callBacksFireBase: CallBacksFireBaseType = {
+    fbLogin,
+    fbJoin,
+    fbLogout,
+    fbDeleteUser,
+  };
 
   useEffect(() => {
     getLocalData();
   }, []);
 
-  return <App states={states} callBacks={callBacks} />;
+  return (
+    <App
+      states={states}
+      callBacks={callBacks}
+      callBacksFireBase={callBacksFireBase}
+      userLogin={userLogin}
+    />
+  );
 };
 
 export default AppContainer;
