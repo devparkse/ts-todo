@@ -189,15 +189,15 @@ export const todoSlice = createSlice({
     builder
       // 전체자료 호출
       .addCase(getTodoFB.pending, (state, action) => {
-        console.log("getTodoFB.pending");
+        // console.log("getTodoFB.pending");
       })
       .addCase(getTodoFB.fulfilled, (state, action) => {
-        console.log("getTodoFB.fulfilled");
+        // console.log("getTodoFB.fulfilled");
         // 자료형을 변환해서 저장해야한다. typeScript 니까
         state.todoList = action.payload as Array<TodoType>;
       })
       .addCase(getTodoFB.rejected, (state, action) => {
-        console.log("getTodoFB.rejected");
+        // console.log("getTodoFB.rejected");
       })
       // 할일 추가
       .addCase(addTodoFB.pending, (state, action) => {})
