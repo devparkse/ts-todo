@@ -1,3 +1,5 @@
+# Todo App (TypeScript)
+
 1. 프로젝트 설계
 
 - 상태 데이터 (할일)
